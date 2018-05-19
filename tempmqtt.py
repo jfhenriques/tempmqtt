@@ -19,7 +19,7 @@ broker_ha_port = 1883
 broker_ha_ttl = 60
 
 mqtt_temp_topic = 'ha/sensor/pi3balcony/temperature'
-sleep_secs = 5
+sleep_secs = 20
 
 last_reading_file = 'last_reading.txt'
 
@@ -27,13 +27,16 @@ last_reading_file = 'last_reading.txt'
 
 client = mqtt.Client()
 
-def write_file(file, t, h):
+def write_file(file, t = 'N/A', h = 'N/A', p = None):
    try:
       f = open(file, 'w')
    except:
       print_ts('Cannot open {}'.format(arg))
    else:
-      f.write("Temp: {}°C  Hum: {}%".format(t, h))
+      if p is not None:
+         f.write("T: {}°C  H: {}%  hPa: {}".format(t, h, p))
+      else:
+         f.write("T: {}°C  H: {}%".format(t, h))
       f.close()
 
 
@@ -81,11 +84,10 @@ def main():
 
       else:
          if sensor.parseData(reading) is not None:
-            
-            print_ts('Got reading: Temp={0:0.1f}*  Humidity={1:0.1f}%  Pressure={2:0.1f}hPa'.format(reading.temperature, reading.humidity, reading.pressure))
+            #print_ts('Got reading: Temp={0:0.1f}*  Humidity={1:0.1f}%  Pressure={2:0.1f}hPa'.format(reading.temperature, reading.humidity, reading.pressure))
             client.publish(mqtt_temp_topic, reading.toJSON())
             try:
-               write_file(last_reading_file, reading.temp, reading.hum)
+               write_file(last_reading_file, reading.temperature, reading.humidity, reading.pressure)
             except:
                pass
       
