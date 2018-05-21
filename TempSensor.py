@@ -4,8 +4,17 @@ import tzlocal
 import json
 
 def calculate_res_mean(val1, val2, res = 2):
+
+   if val1 is None and val2 is None:
+      return None
+   elif val1 is None:
+      return val2
+   elif val2 is None:
+      return val1
+      
    if res < 2:
       res = 2
+      
    return ((val1 * (res-1)) / res) + (val2 / res)
    
  
