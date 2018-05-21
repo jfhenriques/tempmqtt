@@ -11,7 +11,7 @@ class BME280Sensor(TempSensor.TempSensor):
       self.humidity_hist = None
       self.temperature_hist = None
       self.pressure_hist = None
-      self.history_size = 3
+      self.history_size = 4
       self.historyReading = None
       
       bme280.bme280_i2c.set_default_i2c_address(int(str(I2C_ADDRESS), 0))
