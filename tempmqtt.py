@@ -20,11 +20,11 @@ DHT22_GPIO = 22
 BME280_I2C_ADDRESS = 0x76
 BME280_I2C_BUS = 1
 
-broker_ha = '192.168.1.14'
+broker_ha = '192.168.0.35'
 broker_ha_port = 1883
 broker_ha_ttl = 60
 
-mqtt_temp_topic = 'ha/sensor/pi3roomtest'
+mqtt_temp_topic = 'ha/sensor/test/topic'
 sleep_secs = 60
 
 last_reading_file = 'last_reading.txt'
@@ -105,7 +105,7 @@ def main():
       
             
          else:
-            print_ts("[ERROR] Temperature Readings don't have an acceptable quality...")
+            print_ts("[ERROR] Temperature Reading doesn't have an acceptable quality...")
 
 
       # Check System Readings
