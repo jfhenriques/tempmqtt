@@ -46,7 +46,7 @@ class SystemSensor():
 
       reading.memory_use_percent = psutil.virtual_memory().percent
 
-      reading.swap_user_percent = psutil.swap_memory().percent
+      reading.swap_use_percent = psutil.swap_memory().percent
 
       reading.disk_user_percent = psutil.disk_usage('/').percent
 
