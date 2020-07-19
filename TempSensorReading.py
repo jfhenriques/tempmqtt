@@ -1,7 +1,5 @@
 
-from datetime import datetime
-import tzlocal
-import json
+from Reading import Reading
 
 def calculate_res_mean(val1, val2, res = 2):
 
@@ -14,22 +12,21 @@ def calculate_res_mean(val1, val2, res = 2):
       
    if res < 2:
       res = 2
-      
-   return ((val1 * (res-1)) / res) + (val2 / res)
-   
- 
-class Reading():
+
+   return ((val1 * (res-1)) / res) + (val2 / res)   
+
+class TempReading(Reading):
    def __init__(self, humidity = None, temperature = None, pressure = None, timestamp = None):
       self.temperature = temperature
       self.humidity = humidity
       self.pressure = pressure
-      self.timestamp = timestamp
 
-   def toJSON(self, timestamp = True):
-      if timestamp:
-         self.timestamp = datetime.now(tzlocal.get_localzone()).isoformat()
-      return json.dumps(self.__dict__)
-      
+   def getReadingName(self):
+      return 'temperature'
+
+   def getDict(self):
+      return self.__dict__
+
    def getAltitude(self, seaLevelpressure):
       if self.pressure is None or seaLevelpressure is None:
          return None
@@ -37,7 +34,7 @@ class Reading():
 
       
    
-class TempSensor:
+class TempSensor():
    def __init__(self):
       pass
       

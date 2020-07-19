@@ -1,12 +1,11 @@
 
-import TempSensor
-from TempSensor import Reading
+from TempSensorReading import *
 from time import sleep
 import Adafruit_DHT
 from datetime import datetime
 
 
-class DHT22Sensor(TempSensor.TempSensor):
+class DHT22Sensor(TempSensor):
    
    def __init__(self, GPIO, sensor_sleep_secs = 2.0):
       self.temp_hist = {"val": None, "in_mean": None}
@@ -30,7 +29,7 @@ class DHT22Sensor(TempSensor.TempSensor):
       ht = 0
       
       if self.lastReading is None:
-         self.lastReading = Reading()
+         self.lastReading = TempReading()
 
       for i in range(self.total_tries):
          if self.last_sensor_read is not None:
@@ -85,7 +84,7 @@ class DHT22Sensor(TempSensor.TempSensor):
          hist["in_mean"] = TempSensor.calculate_res_mean(val, hist["in_mean"], self.history_size)
       return None
    
-   def parseData(self, reading = Reading()):
+   def parseData(self, reading = TempReading()):
       if self.lastReading is not None and self.lastReading.temperature is not None and self.lastReading.humidity is not None:
       
          if self.smoothData:

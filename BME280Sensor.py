@@ -1,17 +1,16 @@
 
-import TempSensor
-from TempSensor import Reading
+from TempSensorReading import *
 from bme280 import bme280
 
 
-class BME280Sensor(TempSensor.TempSensor):
+class BME280Sensor(TempSensor):
    def __init__(self, I2C_ADDRESS = 0x76, I2C_BUS = 1):
       self.lastReading = None
       self.roundDigits = 1
       self.humidity_hist = None
       self.temperature_hist = None
       self.pressure_hist = None
-      self.history_size = 4
+      self.history_size = 5
       self.historyReading = None
       
       bme280.bme280_i2c.set_default_i2c_address(int(str(I2C_ADDRESS), 0))
@@ -31,7 +30,7 @@ class BME280Sensor(TempSensor.TempSensor):
          return False
       
       if self.lastReading is None:
-         self.lastReading = Reading()
+         self.lastReading = TempReading()
       
       self.lastReading.humidity = data_all.humidity
       self.lastReading.temperature = data_all.temperature
@@ -43,14 +42,14 @@ class BME280Sensor(TempSensor.TempSensor):
       if self.lastReading is not None:
       
          if self.historyReading is None:
-            self.historyReading = Reading()
+            self.historyReading = TempReading()
       
-         self.historyReading.humidity = TempSensor.calculate_res_mean(self.historyReading.humidity, self.lastReading.humidity, self.history_size)
-         self.historyReading.temperature = TempSensor.calculate_res_mean(self.historyReading.temperature, self.lastReading.temperature, self.history_size)
-         self.historyReading.pressure = TempSensor.calculate_res_mean(self.historyReading.pressure, self.lastReading.pressure, self.history_size)
+         self.historyReading.humidity = calculate_res_mean(self.historyReading.humidity, self.lastReading.humidity, self.history_size)
+         self.historyReading.temperature = calculate_res_mean(self.historyReading.temperature, self.lastReading.temperature, self.history_size)
+         self.historyReading.pressure = calculate_res_mean(self.historyReading.pressure, self.lastReading.pressure, self.history_size)
          
          if reading is None:
-            reading = Reading()
+            reading = TempReading()
             
          reading.humidity = round(self.historyReading.humidity, self.roundDigits)
          reading.temperature = round(self.historyReading.temperature, self.roundDigits)
