@@ -25,7 +25,7 @@ broker_ha_port = 1883
 broker_ha_ttl = 60
 
 mqtt_temp_topic = 'ha/sensor/pi3roomtest'
-sleep_secs = 5
+sleep_secs = 60
 
 last_reading_file = 'last_reading.txt'
 
