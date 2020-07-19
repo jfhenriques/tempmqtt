@@ -48,7 +48,7 @@ class SystemSensor():
 
       reading.swap_use_percent = psutil.swap_memory().percent
 
-      reading.disk_user_percent = psutil.disk_usage('/').percent
+      reading.disk_use_percent = psutil.disk_usage('/').percent
 
       reading.last_boot = utc_to_local(datetime.utcfromtimestamp(psutil.boot_time())).isoformat()
 
