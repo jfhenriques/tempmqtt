@@ -1,6 +1,9 @@
 
 #
 #  pip3 install psutil
+#  pip3 install paho-mqtt
+#  pip3 install tzlocal
+#
 #
 
 
@@ -8,7 +11,7 @@ import paho.mqtt.client as mqtt
 from time import sleep
 from datetime import datetime
 #from DHT22Sensor import DHT22Sensor
-from BME280Sensor import BME280Sensor
+#from BME280Sensor import BME280Sensor
 from Reading import ReadingGroup
 from pprint import pprint
 from TempSensorReading import TempSensor, TempReading
@@ -30,7 +33,6 @@ sleep_secs = 60
 last_reading_file = 'last_reading.txt'
 
 
-systemSensor = SystemSensor()
 client = mqtt.Client()
 
 def write_file(file, t = 'N/A', h = 'N/A', p = None):
@@ -73,49 +75,54 @@ def setup_bme280():
    sensor = BME280Sensor(BME280_I2C_ADDRESS, BME280_I2C_BUS)
    sensor.roundDigits = ROUND_DIGITS
    return sensor
+   
+   
+def temp_read(sensor, readingGroup): 
+   if not sensor.readData():
+      print_ts("[ERROR] Could not get sensor readings...")
+
+   else:
+      tempReading = TempReading()
+      if sensor.parseData(tempReading) is not None:
+         #print_ts('Got reading: Temp={0:0.1f}*  Humidity={1:0.1f}%  Pressure={2:0.1f}hPa'.format(reading.temperature, reading.humidity, reading.pressure))
+         readingGroup.registerReading(tempReading)
+        
+         try:
+            write_file(last_reading_file, tempReading.temperature, tempReading.humidity, tempReading.pressure)
+         except:
+            pass
+         
+         else:
+            print_ts("[ERROR] Temperature Reading doesn't have an acceptable quality...")
+
+def system_read(sensor, readingGroup): 
+      sysReading = sensor.readData()
+      readingGroup.registerReading(sysReading)
+
 
 def main():
    sleep(2) 
    print_ts('Connecting to broker...')
    mqtt_connect()
-   #sensor = setup_dht22()
-   sensor = setup_bme280()
+   #tempSensor = setup_dht22()
+   #tempSensor = setup_bme280()
+   systemSensor = SystemSensor()
 
    print_ts('Starting loop...')
 
    while True:
 
       readingGroup = ReadingGroup()
+      
       # Fetch temperature data
-      
-      if not sensor.readData():
-         print_ts("[ERROR] Could not get sensor readings...")
-
-      else:
-         tempReading = TempReading()
-         if sensor.parseData(tempReading) is not None:
-            #print_ts('Got reading: Temp={0:0.1f}*  Humidity={1:0.1f}%  Pressure={2:0.1f}hPa'.format(reading.temperature, reading.humidity, reading.pressure))
-
-            readingGroup.registerReading(tempReading)
-            
-            try:
-               write_file(last_reading_file, tempReading.temperature, tempReading.humidity, tempReading.pressure)
-            except:
-               pass
-      
-            
-         else:
-            print_ts("[ERROR] Temperature Reading doesn't have an acceptable quality...")
+      #temp_read(tempSensor, readingGroup)
 
 
       # Check System Readings
-      
-      sysReading = systemSensor.readData()
-      readingGroup.registerReading(sysReading)
+      system_read(systemSensor, readingGroup)
       
 
       # Check if there are readings to publish
-
       if readingGroup.hasReadings():
          client.publish(mqtt_temp_topic, readingGroup.toJSON())
 
@@ -128,3 +135,4 @@ def main():
 # call main 
 if __name__ == '__main__': 
    main()  
+
