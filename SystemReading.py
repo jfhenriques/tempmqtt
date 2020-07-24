@@ -37,6 +37,7 @@ class SystemSensor():
 
    def readData(self, isRPI = True, reading = SystemReading()):
 
+      reading.load_5 = round(os.getloadavg()[1], 2)
       reading.load_15 = round(os.getloadavg()[2], 2)
 
       if isRPI:
