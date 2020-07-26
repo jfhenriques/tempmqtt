@@ -106,7 +106,7 @@ def main():
    mqtt_connect()
    #tempSensor = setup_dht22()
    #tempSensor = setup_bme280()
-   systemSensor = SystemSensor()
+   systemSensor = SystemSensor(True, ["/var/log"], 600)
 
    print_ts('Starting loop...')
 
