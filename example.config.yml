@@ -10,8 +10,12 @@ readings:
 #- temperature
 
 temperature:
+
+  # use bme280 or dht22 and check respective sensor configuration section below
   use: bme280
-#  txt: 'last_reading.txt'
+  
+  # if file name specified, a text file will be created with sensor data, useful for embedding in images
+  #txt: 'last_reading.txt'
 
   sensors:
     bme280:
@@ -21,9 +25,12 @@ temperature:
       gpio: 22
 
 system:
+   # will read RPI specific values
    is_pi: false
+   
    path_size:
    - /var/log
+   
    size_refresh_rate: 600
 
 round_digitis: 1
