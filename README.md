@@ -4,7 +4,7 @@ MQTT System and Temperature sensor for DHT22 and BME280
 
 ## Installation
 
-```
+```bash
 virtualenv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
@@ -13,7 +13,7 @@ deactivate
 
 ## Configuration
 
-```
+```bash
 cp example.config.yml config.yml
 ```
 
@@ -26,7 +26,7 @@ Sections system and temperature, should be configured if specified in the readin
 
 ## Sample config
 
-```
+```yaml
 broker:
   address: '192.168.0.35'
   port: 1883
@@ -65,8 +65,8 @@ round_digitis: 1
 sleep_secs: 60
 ```
 
-## Example json data received in the broker
-```
+## Example json data sent to the broker
+```json
 {
     "timestamp": "2020-05-23T16:30:03.218322+01:00",
     "system": {
