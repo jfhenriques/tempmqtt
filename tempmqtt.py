@@ -10,36 +10,24 @@
 import paho.mqtt.client as mqtt
 from time import sleep
 from datetime import datetime
-#from DHT22Sensor import DHT22Sensor
-#from BME280Sensor import BME280Sensor
 from Reading import ReadingGroup
 from pprint import pprint
 from TempSensorReading import TempSensor, TempReading
 from SystemReading import SystemSensor
-
-ROUND_DIGITS = 1
-DHT22_GPIO = 22
-
-BME280_I2C_ADDRESS = 0x76
-BME280_I2C_BUS = 1
-
-broker_ha = '192.168.0.35'
-broker_ha_port = 1883
-broker_ha_ttl = 60
-
-mqtt_temp_topic = 'ha/sensor/test/topic'
-sleep_secs = 60
-
-last_reading_file = 'last_reading.txt'
+import yaml
 
 
-client = mqtt.Client()
+last_reading_file = None
+
+
+client = None
+cfg = None
 
 def write_file(file, t = 'N/A', h = 'N/A', p = None):
    try:
       f = open(file, 'w')
    except:
-      print_ts('Cannot open {}'.format(arg))
+      print_error('Cannot open {}'.format(arg))
    else:
       if p is not None:
          f.write("T: {}°C  H: {}%  hPa: {}".format(t, h, p))
@@ -48,13 +36,12 @@ def write_file(file, t = 'N/A', h = 'N/A', p = None):
       f.close()
 
 
-
-
-
 def print_ts(msg):
    ts = datetime.now()
    print("[{}] {}".format(ts, msg), flush=True)
 
+def print_error(msg):
+   print_ts("[ERROR] {}".format(msg))
 
 
 def on_connect(client, userdata, flags, rc):
@@ -62,24 +49,42 @@ def on_connect(client, userdata, flags, rc):
 
 def mqtt_connect():
    client.on_connect = on_connect
-   client.connect(broker_ha, broker_ha_port, broker_ha_ttl)
-   client.loop_start()
+   client.connect(cfg['broker']['address'], cfg['broker']['port'], cfg['broker']['ttl'])
+   client.loop_start()                     
    
    
 def setup_dht22():
-   sensor = DHT22Sensor(DHT22_GPIO)
-   sensor.roundDigits = ROUND_DIGITS
+   from DHT22Sensor import DHT22Sensor
+   gpio = None
+   try:
+     gpio = cfg['temperature']['sensors']['dht22']['gpio']
+   except:
+      print_error('Please define gpio in temperature.sensors.dht22 config')
+      quit()
+
+   sensor = DHT22Sensor(gpio)
+   sensor.roundDigits = 1 if not 'round_digitis' in cfg else cfg['round_digitis']
    return sensor
    
 def setup_bme280():
-   sensor = BME280Sensor(BME280_I2C_ADDRESS, BME280_I2C_BUS)
-   sensor.roundDigits = ROUND_DIGITS
+   from BME280Sensor import BME280Sensor
+   i2c_address = None
+   i2c_bus = None
+   try:
+     i2c_address = cfg['temperature']['sensors']['bme280']['i2c_address']
+     i2c_bus = cfg['temperature']['sensors']['bme280']['i2c_bus']
+   except:
+      print_error('Please define i2c_address and i2c_bus in temperature.sensors.bme280 config')
+      quit()
+
+   sensor = BME280Sensor(i2c_address, i2c_bus)
+   sensor.roundDigits = 1 if not 'round_digitis' in cfg else cfg['round_digitis']
    return sensor
    
    
 def temp_read(sensor, readingGroup): 
    if not sensor.readData():
-      print_ts("[ERROR] Could not get sensor readings...")
+      print_error("Could not get sensor readings...")
 
    else:
       tempReading = TempReading()
@@ -87,26 +92,81 @@ def temp_read(sensor, readingGroup):
          #print_ts('Got reading: Temp={0:0.1f}*  Humidity={1:0.1f}%  Pressure={2:0.1f}hPa'.format(reading.temperature, reading.humidity, reading.pressure))
          readingGroup.registerReading(tempReading)
         
-         try:
-            write_file(last_reading_file, tempReading.temperature, tempReading.humidity, tempReading.pressure)
-         except:
-            pass
+         if last_reading_file is not None:
+            try:
+               write_file(last_reading_file, tempReading.temperature, tempReading.humidity, tempReading.pressure)
+            except:
+               pass
          
       else:
-         print_ts("[ERROR] Temperature Reading doesn't have an acceptable quality...")
+         print_error("Temperature Reading doesn't have an acceptable quality...")
 
 def system_read(sensor, readingGroup): 
-      sysReading = sensor.readData()
-      readingGroup.registerReading(sysReading)
+   sysReading = sensor.readData()
+   readingGroup.registerReading(sysReading)
 
 
 def main():
-   sleep(2) 
+
+   global cfg
+   global client
+   global last_reading_file
+
+   try:
+      cfg = yaml.load(open('config.yml', 'r'), Loader=yaml.FullLoader)
+   except:
+      print_eror("Please create config.yml file")
+      return
+
+   if 'readings' not in cfg or not isinstance(cfg['readings'], list):
+      print_error('Please define readings section in config')
+      return
+
+   if 'broker' not in cfg or 'address' not in cfg['broker'] or 'port' not in cfg['broker'] or 'topic' not in cfg['broker'] or 'ttl' not in cfg['broker']:
+      print_error('Please define broken section in config with elements: address, port, topic and ttl')
+      return
+
+   sleep_secs = 60 if not 'sleep_secs' in cfg else cfg['sleep_secs']
+   mqtt_topic = cfg['broker']['topic']
+   
+   tempSensor = None
+   systemSensor = None
+   
+   validSensors = 0
+
+   for s in cfg['readings']:
+
+      if s == 'temperature' and 'temperature' in cfg and 'use' in cfg['temperature']:
+
+         if 'txt' in cfg['temperature']:
+            last_reading_file = cfg['temperature']['txt']
+            
+
+         if cfg['temperature']['use'] == 'bme280':
+            print_ts("Setting up sensor: bme280")
+            tempSensor = setup_bme280()
+            validSensors += 1
+
+         elif cfg['temperature']['use'] == 'dht22':
+            print_ts("Setting up sensor: dht22")
+            tempSensor = setup_dht22()
+            validSensors += 1
+
+      elif s == 'system' and 'system' in cfg:
+         print_ts("Setting up sensor: system")
+         systemSensor = SystemSensor(
+                           False if not 'is_pi' in cfg['system'] else cfg['system']['is_pi'],
+                           [] if not 'path_size' in cfg['system'] else cfg['system']['path_size'],
+                           600 if not 'size_refresh_rate' in cfg['system'] else cfg['system']['size_refresh_rate'])
+         validSensors += 1
+
+   if validSensors <= 0:
+      print_error('Readings or respective configuration sections not properly configured')
+      return
+
    print_ts('Connecting to broker...')
+   client = mqtt.Client()
    mqtt_connect()
-   #tempSensor = setup_dht22()
-   #tempSensor = setup_bme280()
-   systemSensor = SystemSensor(True, ["/var/log"], 600)
 
    print_ts('Starting loop...')
 
@@ -115,20 +175,22 @@ def main():
       readingGroup = ReadingGroup()
       
       # Fetch temperature data
-      #temp_read(tempSensor, readingGroup)
+      if tempSensor is not None:
+         temp_read(tempSensor, readingGroup)
 
 
       # Check System Readings
-      system_read(systemSensor, readingGroup)
+      if systemSensor is not None:
+         system_read(systemSensor, readingGroup)
       
 
       # Check if there are readings to publish
       if readingGroup.hasReadings():
-         client.publish(mqtt_temp_topic, readingGroup.toJSON())
+         client.publish(mqtt_topic, readingGroup.toJSON())
 
       else:
-         print_ts("[WARN] No Readings to publish")
-
+         print_ts("[WARN] No readings to publish")
+      
       sleep(sleep_secs)
 
 

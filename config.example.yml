@@ -1,0 +1,31 @@
+
+broker:
+  address: '192.168.0.35'
+  port: 1883
+  ttl: 60
+  topic: 'ha/sensor/test/topic'
+
+readings:
+- system
+#- temperature
+
+temperature:
+  use: bme280
+#  txt: 'last_reading.txt'
+
+  sensors:
+    bme280:
+      i2c_address: 0x76
+      i2c_bus: 1
+    dht22:
+      gpio: 22
+
+system:
+   is_pi: false
+   path_size:
+   - /var/log
+   size_refresh_rate: 600
+
+round_digitis: 1
+sleep_secs: 60
+
