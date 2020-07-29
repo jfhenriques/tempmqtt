@@ -1,6 +1,6 @@
 # tempmqtt
 
-MQTT System and Temperature sensor for DHT22 and BME280
+MQTT System and Temperature (DHT22 or BME280) sensors
 
 ## Installation
 
