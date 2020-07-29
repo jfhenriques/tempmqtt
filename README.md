@@ -64,3 +64,30 @@ system:
 round_digitis: 1
 sleep_secs: 60
 ```
+
+## Example json data received in the broker
+```
+{
+    "timestamp": "2020-05-23T16:30:03.218322+01:00",
+    "system": {
+        "processor_use": 0,
+        "last_boot": "2020-07-29T16:30:03+01:00",
+        "cpu_temperature": 50.5,
+        "memory_use_percent": 14.1,
+        "dir_sizes": {
+            "/var/log": 15676
+        },
+        "throttled": "0",
+        "load_15": 0.0,
+        "disk_use_percent": 25.0,
+        "load_5": 0.0,
+        "swap_use_percent": 1.0
+    },
+    "temperature": {
+        "pressure": 1001.1,
+        "humidity": 65.1,
+        "temperature": 22.3
+    }
+}
+```
+
