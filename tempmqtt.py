@@ -92,8 +92,8 @@ def temp_read(sensor, readingGroup):
          except:
             pass
          
-         else:
-            print_ts("[ERROR] Temperature Reading doesn't have an acceptable quality...")
+      else:
+         print_ts("[ERROR] Temperature Reading doesn't have an acceptable quality...")
 
 def system_read(sensor, readingGroup): 
       sysReading = sensor.readData()
