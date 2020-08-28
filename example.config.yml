@@ -31,10 +31,10 @@ system:
    path_size:
    - /var/log
 
-   net_ifaces:
-   - eth0
-   
    size_refresh_rate: 600
+
+   net_ifaces:
+   - eth0   
 
 round_digitis: 1
 sleep_secs: 60

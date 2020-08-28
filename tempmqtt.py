@@ -15,7 +15,7 @@ from pprint import pprint
 from TempSensorReading import TempSensor, TempReading
 from SystemReading import SystemSensor
 import yaml
-
+import sys, getopt
 
 last_reading_file = None
 
@@ -115,14 +115,23 @@ def system_read(sensor, readingGroup):
    readingGroup.registerReading(sysReading)
 
 
-def main():
+def main(argv):
 
    global cfg
    global client
    global last_reading_file
 
+   config_file = 'config.yml'
+
+   opts, args = getopt.getopt(argv,"c:")
+   for o,a in opts:
+     if o == '-c':
+        config_file = a
+
+   print_ts("Using configuration file: " + config_file)
+
    try:
-      cfg = yaml.load(open('config.yml', 'r'), Loader=yaml.FullLoader)
+      cfg = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
    except:
       print_eror("Please create config.yml file")
       return
@@ -202,5 +211,5 @@ def main():
 
 # call main 
 if __name__ == '__main__': 
-   main()  
+   main(sys.argv[1:])  
 

@@ -58,8 +58,11 @@ system:
    
    path_size:
    - /var/log
-   
+
    size_refresh_rate: 600
+
+   net_ifaces:
+   - eth0
 
 round_digitis: 1
 sleep_secs: 60
@@ -81,7 +84,11 @@ sleep_secs: 60
         "load_15": 0.0,
         "disk_use_percent": 25.0,
         "load_5": 0.0,
-        "swap_use_percent": 1.0
+        "swap_use_percent": 1.0,
+        "net_ifaces": {
+            "eth0_tp_net_out": 0.002,
+            "eth0_tp_net_in": 0.001
+        }
     },
     "temperature": {
         "pressure": 1001.1,
