@@ -80,7 +80,16 @@ def setup_bme280():
    sensor = BME280Sensor(i2c_address, i2c_bus)
    sensor.roundDigits = 1 if not 'round_digitis' in cfg else cfg['round_digitis']
    return sensor
-   
+
+
+def setup_system():
+   is_pi = False if not 'is_pi' in cfg['system'] else cfg['system']['is_pi']
+   path_size = [] if not 'path_size' in cfg['system'] else cfg['system']['path_size']
+   size_refresh_rate = 600 if not 'size_refresh_rate' in cfg['system'] else cfg['system']['size_refresh_rate']
+   net_ifaces = [] if not 'net_ifaces' in cfg['system'] else cfg['system']['net_ifaces']
+
+   return SystemSensor(is_pi, net_ifaces, path_size, size_refresh_rate)
+ 
    
 def temp_read(sensor, readingGroup): 
    if not sensor.readData():
@@ -154,10 +163,7 @@ def main():
 
       elif s == 'system' and 'system' in cfg:
          print_ts("Setting up sensor: system")
-         systemSensor = SystemSensor(
-                           False if not 'is_pi' in cfg['system'] else cfg['system']['is_pi'],
-                           [] if not 'path_size' in cfg['system'] else cfg['system']['path_size'],
-                           600 if not 'size_refresh_rate' in cfg['system'] else cfg['system']['size_refresh_rate'])
+         systemSensor = setup_system()
          validSensors += 1
 
    if validSensors <= 0:
