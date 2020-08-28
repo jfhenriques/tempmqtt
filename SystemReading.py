@@ -128,6 +128,8 @@ class SystemSensor():
                         / 1000 ** 2
                         / (now - self._ifacesLastCheckDate).total_seconds(),
                         3)
+                  else:
+                     cur_state = last_i_io
                 
                   self._netIfacesLast[state_key] = counter
                   net_ifaces[state_key] = cur_state
