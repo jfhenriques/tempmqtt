@@ -124,9 +124,9 @@ def main(argv):
 
    config_file = 'config.yml'
 
-   opts, args = getopt.getopt(argv,"c:")
+   opts, args = getopt.getopt(argv,"f:")
    for o,a in opts:
-     if o == '-c':
+     if o == '-f':
         config_file = a
 
    print_ts("Using configuration file: " + config_file)

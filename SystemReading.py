@@ -110,7 +110,9 @@ class SystemSensor():
          net_ifaces = {}
          counters = psutil.net_io_counters(pernic=True)
          now = datetime.now()
-         
+
+         secsDelta = (now - self._ifacesLastCheckDate).total_seconds() if self._ifacesLastCheckDate else None
+
          for i in self._netIfaces:
 
             if i in counters:
@@ -119,21 +121,15 @@ class SystemSensor():
 
                   state_key = '{}_{}'.format(i, io)
                   counter = counters[i][IO_COUNTER[io]]
-                  last_i_io = None if state_key not in self._netIfacesLast else self._netIfacesLast[state_key]
-                  cur_state = None
+                  last_i_io = self._netIfacesLast[state_key] if state_key in self._netIfacesLast else None
+                  cur_state = 0.0
 
                   if last_i_io and last_i_io < counter:
-                     cur_state = round(
-                        (counter - last_i_io)
-                        / 1000 ** 2
-                        / (now - self._ifacesLastCheckDate).total_seconds(),
-                        3)
-                  else:
-                     cur_state = last_i_io
+                     cur_state = round( ( counter - last_i_io ) / 1000 ** 2 / secsDelta, 3)
                 
                   self._netIfacesLast[state_key] = counter
-                  net_ifaces[state_key] = cur_state
-                
+                  net_ifaces[state_key] = cur_state                
+
          self._ifacesLastCheckDate = now
          reading.net_ifaces = net_ifaces
 
