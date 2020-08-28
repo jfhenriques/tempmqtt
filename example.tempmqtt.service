@@ -1,0 +1,15 @@
+[Unit]
+Description=tempmqtt
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/opt/tempmqtt/venv/bin/python3 tempmqtt.py -c config.yml
+WorkingDirectory=/opt/tempmqtt
+Restart=on-failure
+RestartSec=5
+
+
+[Install]
+WantedBy=multi-user.target
+

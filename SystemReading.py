@@ -49,8 +49,10 @@ class SystemReading(Reading):
 
 class SystemSensor():
 
-   def __init__(self, isRPI = True, netIfaces = [], dirList = [], dirReadMinSeconds = 600):
+   def __init__(self, isRPI = True, basic = True, netIfaces = [], dirList = [], dirReadMinSeconds = 600):
       self._isRPI = isRPI
+      self._basic = basic
+
       self._dirList = dirList
 
       self._netIfaces = netIfaces
@@ -65,22 +67,20 @@ class SystemSensor():
 
    def readData(self, reading = SystemReading()):
 
-      reading.processor_use = round(psutil.cpu_percent(interval=None))
-      reading.load_5 = round(os.getloadavg()[1], 2)
-      reading.load_15 = round(os.getloadavg()[2], 2)
+      if self._basic:
 
-      if self._isRPI:
-         reading.throttled = get_throttled()
+         reading.processor_use = round(psutil.cpu_percent(interval=None))
+         reading.load_5 = round(os.getloadavg()[1], 2)
+         reading.load_15 = round(os.getloadavg()[2], 2)
 
-         reading.cpu_temperature = get_cpu_temp()
+         if self._isRPI:
+            reading.throttled = get_throttled()
+            reading.cpu_temperature = get_cpu_temp()
 
-      reading.memory_use_percent = psutil.virtual_memory().percent
-
-      reading.swap_use_percent = psutil.swap_memory().percent
-
-      reading.disk_use_percent = psutil.disk_usage('/').percent
-
-      reading.last_boot = self._lastBoot
+         reading.memory_use_percent = psutil.virtual_memory().percent
+         reading.swap_use_percent = psutil.swap_memory().percent
+         reading.disk_use_percent = psutil.disk_usage('/').percent
+         reading.last_boot = self._lastBoot
 
       self._readDirSizes(reading)
       self._readNetIfaces(reading)

@@ -87,8 +87,9 @@ def setup_system():
    path_size = [] if not 'path_size' in cfg['system'] else cfg['system']['path_size']
    size_refresh_rate = 600 if not 'size_refresh_rate' in cfg['system'] else cfg['system']['size_refresh_rate']
    net_ifaces = [] if not 'net_ifaces' in cfg['system'] else cfg['system']['net_ifaces']
+   read_basic = False if not 'read_basic' in cfg['system'] else cfg['system']['read_basic']
 
-   return SystemSensor(is_pi, net_ifaces, path_size, size_refresh_rate)
+   return SystemSensor(is_pi, read_basic, net_ifaces, path_size, size_refresh_rate)
  
    
 def temp_read(sensor, readingGroup): 

@@ -53,6 +53,9 @@ temperature:
       gpio: 22
 
 system:
+   # Read basic metrics: cpu, memory, etc
+   read_basic: True
+
    # will read RPI specific values
    is_pi: false
    

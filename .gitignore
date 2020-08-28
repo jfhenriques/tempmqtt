@@ -1,4 +1,4 @@
 __pycache__
 last_reading.txt
 venv
-config.yml
+config*.yml
