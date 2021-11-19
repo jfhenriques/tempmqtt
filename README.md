@@ -11,6 +11,8 @@ pip3 install -r requirements.txt
 deactivate
 ```
 
+**Note:** in case temperature sensors is going to be used (development boards onlu, like raspberry pi), uncoment the 3 first lines in the requirements.txt before installing
+
 ## Configuration
 
 ```bash
